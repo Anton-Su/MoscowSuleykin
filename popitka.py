@@ -14,12 +14,12 @@ def smena(color):
 
 
 def raund():
-    return [['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
-     ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
-     ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
-     ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
-     ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
-     ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp']]
+    return [['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
+            ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
+            ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
+            ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
+            ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp'],
+            ['emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp', 'emp']]
 
 
 class Board:
@@ -56,7 +56,6 @@ class Board:
     def hod(self):
         if self.current == WHITE:
             Player.move(self, self.coloda[0])
-
         else:
             Intellect.currentmove(self, self.iicoloda[0])
 
@@ -66,11 +65,11 @@ def podbor(coloda, Carta, result):
     for i in range(len(result)):
         if i < 8:
             coloda.append(Carta(result[i][0], result[i][1],
-                            result[i][2], result[i][4], result[i][5]))
+                                result[i][2], result[i][4], result[i][5]))
             print(coloda[i].name)
         else:
             res.append(Carta(result[i][0], result[i][1],
-                            result[i][2], result[i][4], result[i][5]))
+                             result[i][2], result[i][4], result[i][5]))
             # print(res)
     # to do: замена карт при нажатии на карту
     print()
@@ -93,17 +92,18 @@ class Player(Board):
             self.result = self.result[2:]
         elif cart.ability == 'Summon':
             res = [i for i in self.coloda if i.ability == 'Prisivnic' \
-                        and i.type == cart.type]
+                   and i.type == cart.type]
             rasnisa = len(self.coloda) - len(res) if \
                 (len(self.coloda) - len(res) != len(self.coloda)) else 0
             self.coloda = [i for i in self.coloda if i.ability != 'Prisivnic' \
-                        or i.type != cart.type]
-            res += [i for i in self.result if i.ability == 'Prisivnic' \
-                        and i.type == cart.type]
+                           or i.type != cart.type]
+            res1 = [i for i in self.result if i.ability == 'Prisivnic' \
+                    and i.type == cart.type]
             self.result = [i for i in self.result if i.ability != 'Prisivnic' \
-                        or i.type != cart.type]
+                           or i.type != cart.type]
+            self.coloda.extend(res1)
             self.coloda.extend(res)
-            for i in range(len(res)):
+            for i in range(len(res1) + len(res)):
                 deistvie = Player.move(self, self.coloda[-1], 1)
                 if not deistvie and rasnisa > 0:
                     rasnisa -= 1
@@ -131,7 +131,7 @@ class Player(Board):
 
         print(self.pole[ryad].index('emp'))
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
-        del self.coloda[self.coloda.index(carta)]   # удаление выбранной карты из колоды
+        del self.coloda[self.coloda.index(carta)]  # удаление выбранной карты из колоды
         if len(self.iicoloda) > 0 and prisivnic == 0:
             self.current = smena(self.current)
         Player.ability(self, carta)
@@ -156,17 +156,18 @@ class Intellect(Board):
             self.result1 = self.result1[2:]
         elif cart.ability == 'Summon':
             res = [i for i in self.iicoloda if i.ability == 'Prisivnic' \
-                        and i.type == cart.type]
+                   and i.type == cart.type]
             self.iicoloda = [i for i in self.iicoloda if i.ability != 'Prisivnic' \
                              or i.type != cart.type]
             rasnisa = len(self.iicoloda) - len(res) if \
                 (len(self.iicoloda) - len(res) != len(self.iicoloda)) else 0
-            res += [i for i in self.result1 if i.ability == 'Prisivnic' \
-                        and i.type == cart.type]
+            res1 = [i for i in self.result1 if i.ability == 'Prisivnic' \
+                    and i.type == cart.type]
             self.result1 = [i for i in self.result1 if i.ability != 'Prisivnic' \
-                        or i.type != cart.type]
+                            or i.type != cart.type]
+            self.iicoloda.extend(res1)
             self.iicoloda.extend(res)
-            for i in range(len(res)):
+            for i in range(len(res) + len(res1)):
                 deistvie = Intellect.currentmove(self, self.iicoloda[-1], 1)
                 if not deistvie and rasnisa > 0:
                     rasnisa -= 1
