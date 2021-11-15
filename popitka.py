@@ -61,7 +61,9 @@ class Board:
         else:
             Intellect.move(self, self.iicoloda[0])
 
-    def ability(self, cart, coloda, result, gamer, ryad=0):
+    def ability(self, cart, coloda, result, gamer, ryad=0, coloda2=None):
+        if coloda2 is None:
+            coloda2 = []
         if cart.ability == 'Trap':
             coloda.extend(result[:2])
             res = result[2:]
@@ -98,12 +100,10 @@ class Board:
             print(self.pole[b])
             bb = int(input())
             if b in ryad and not isinstance(self.pole[b][bb], str):
-                print(coloda)
                 coloda.append(self.pole[b][bb])
                 self.pole[b][bb] = 'emp'
                 del coloda[coloda.index(cart)]
-                print(coloda)
-                if len(self.coloda) > 0:
+                if len(coloda2) > 0:
                     self.current = smena(self.current)
 
 
@@ -141,7 +141,7 @@ class Player(Board):
     def move(self, carta, prisivnic=0):
         ryad = self.ryadi(carta)
         if carta.ability == 'Shadow':
-            self.ability(carta, self.coloda, self.result, Player, ryad)
+            self.ability(carta, self.coloda, self.result, Player, ryad, self.iicoloda)
         elif self.pole[ryad].count('emp') > 0:
             return Player.currentmove(self, ryad, carta, prisivnic)
         else:
@@ -179,7 +179,7 @@ class Intellect(Board):
     def move(self, carta, prisivnic=0):
         ryad = self.ryadi(carta)
         if carta.ability == 'Shadow':
-            self.ability(carta, self.iicoloda, self.result1, Intellect, ryad)
+            self.ability(carta, self.iicoloda, self.result1, Intellect, ryad, self.coloda)
         elif self.pole[ryad].count('emp') > 0:
             del self.iicoloda[self.iicoloda.index(carta)]
             self.pole[ryad][self.pole[ryad].index('emp')] = carta
