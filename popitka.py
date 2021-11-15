@@ -57,7 +57,39 @@ class Board:
         if self.current == WHITE:
             Player.move(self, self.coloda[0])
         else:
-            Intellect.currentmove(self, self.iicoloda[0])
+            Intellect.move(self, self.iicoloda[0])
+
+    def ability(self, cart, coloda, result, gamer):
+        if cart.ability == 'Trap':
+            coloda.extend(result[:2])
+            res = result[2:]
+            result.clear()
+            result.extend(res)
+        elif cart.ability == 'Summon':
+            res = [i for i in coloda if i.ability == 'Prisivnic' \
+                   and i.type == cart.type]
+            rasnisa = len(coloda) - len(res)
+            colodaex = [i for i in coloda if i.ability != 'Prisivnic' \
+                           or i.type != cart.type]
+            res1 = [i for i in result if i.ability == 'Prisivnic' \
+                    and i.type == cart.type]
+            resultex = [i for i in result if i.ability != 'Prisivnic' \
+                           or i.type != cart.type]
+            coloda.clear()
+            coloda.extend(colodaex)
+            coloda.extend(res1)
+            coloda.extend(res)
+            result.clear()
+            result.extend(resultex)
+            for i in range(len(res1) + len(res)):
+                deistvie = gamer.move(self, coloda[-1], 1)
+                if not deistvie:
+                    if rasnisa > 0:
+                        coloda.insert(0, coloda[-1])
+                    else:
+                        result.append(coloda[-1])
+                    del coloda[-1]
+                rasnisa -= 1
 
 
 def podbor(coloda, Carta, result):
@@ -85,33 +117,6 @@ class Player(Board):
         self.type = type
         self.ability = ability
 
-    def ability(self, cart):
-        if cart.ability == 'Trap':
-            self.coloda.extend(self.result[:2])
-            self.result = self.result[2:]
-        elif cart.ability == 'Summon':
-            res = [i for i in self.coloda if i.ability == 'Prisivnic' \
-                   and i.type == cart.type]
-            rasnisa = len(self.coloda) - len(res) if \
-                (len(self.coloda) - len(res) != len(self.coloda)) else 0
-            self.coloda = [i for i in self.coloda if i.ability != 'Prisivnic' \
-                           or i.type != cart.type]
-            res1 = [i for i in self.result if i.ability == 'Prisivnic' \
-                    and i.type == cart.type]
-            self.result = [i for i in self.result if i.ability != 'Prisivnic' \
-                           or i.type != cart.type]
-            self.coloda.extend(res1)
-            self.coloda.extend(res)
-            for i in range(len(res1) + len(res)):
-                deistvie = Player.move(self, self.coloda[-1], 1)
-                if not deistvie:
-                    if rasnisa > 0:
-                        self.coloda.insert(0, self.coloda[-1])
-                    else:
-                        self.result.append(self.coloda[-1])
-                    del self.coloda[-1]
-                rasnisa -= 1
-
     def __repr__(self):
         return self.name
 
@@ -120,6 +125,7 @@ class Player(Board):
         if self.pole[ryad].count('emp') > 0:
             return Player.currentmove(self, ryad, carta, prisivnic)
         else:
+            print('переполнение')
             print(self.pole)
             a = input()
             return False
@@ -127,12 +133,11 @@ class Player(Board):
         # to do: нажатие на карту, с показателем ряда, куда карта может переместиться
 
     def currentmove(self, ryad, carta, prisivnic):
-        # print(self.pole[ryad].index('emp'))
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.coloda[self.coloda.index(carta)]  # удаление выбранной карты из колоды
+        self.ability(carta, self.coloda, self.result, Player)
         if len(self.iicoloda) > 0 and prisivnic == 0:
             self.current = smena(self.current)
-        Player.ability(self, carta)
         return True
         # to do: клик пользователя на карточку
         # to do: реализовать функции - способности с перемещением в ряд.
@@ -147,46 +152,21 @@ class Intellect(Board):
         self.type = type
         self.ability = ability
 
-    def ability(self, cart):
-        # print(cart.name)
-        if cart.ability == 'Trap':
-            self.iicoloda.extend(self.result1[:2])
-            self.result1 = self.result1[2:]
-        elif cart.ability == 'Summon':
-            res = [i for i in self.iicoloda if i.ability == 'Prisivnic' \
-                   and i.type == cart.type]
-            self.iicoloda = [i for i in self.iicoloda if i.ability != 'Prisivnic' \
-                             or i.type != cart.type]
-            rasnisa = len(self.iicoloda) - len(res) if \
-                (len(self.iicoloda) - len(res) != len(self.iicoloda)) else 0
-            res1 = [i for i in self.result1 if i.ability == 'Prisivnic' \
-                    and i.type == cart.type]
-            self.result1 = [i for i in self.result1 if i.ability != 'Prisivnic' \
-                            or i.type != cart.type]
-            self.iicoloda.extend(res1)
-            self.iicoloda.extend(res)
-            for i in range(len(res) + len(res1)):
-                deistvie = Intellect.currentmove(self, self.iicoloda[-1], 1)
-                if not deistvie:
-                    if rasnisa > 0:
-                        self.iicoloda.insert(0, self.iicoloda[-1])
-                    else:
-                        self.result1.append(self.iicoloda[-1])
-                    del self.iicoloda[-1]
-                rasnisa -= 1
-
     def __repr__(self):
         return self.name
 
-    def currentmove(self, carta, prisivnic=0):
+    def move(self, carta, prisivnic=0):
         ryad = self.ryadi(carta)
-        # print(self.pole)
-        self.pole[ryad][self.pole[ryad].index('emp')] = carta
-        del self.iicoloda[self.iicoloda.index(carta)]
-        if len(self.coloda) > 0 and prisivnic == 0:
-            self.current = smena(self.current)
-        Intellect.ability(self, carta)
-        return True
+        if self.pole[ryad].count('emp') > 0:
+            self.pole[ryad][self.pole[ryad].index('emp')] = carta
+            del self.iicoloda[self.iicoloda.index(carta)]
+            self.ability(carta, self.iicoloda, self.result1, Intellect)
+            if len(self.coloda) > 0 and prisivnic == 0:
+                self.current = smena(self.current)
+            return True
+        print(self.pole)
+        print('заполнение')
+        a = input()
         # to do: реализовать функции - способности с перемещением в ряд.
         # Способности карт учитываются
 
@@ -196,8 +176,6 @@ def main():
     winrade = 0
     winrade1 = 0
     while len(desk.coloda) > 0 or len(desk.iicoloda) > 0:
-        # print(desk.coloda)
-        # print(desk.iicoloda)
         desk.hod()
         first = 0
         second = 0
@@ -208,18 +186,14 @@ def main():
                     second += desk.pole[i][ii].cost if not isinstance(desk.pole[i][ii], str) else 0
                 else:
                     first += desk.pole[i][ii].cost if not isinstance(desk.pole[i][ii], str) else 0
-        # print(first, second)
         if len(desk.coloda) == 0 and len(desk.iicoloda) == 0:
             if first > second:
                 winrade += 1
             else:
                 winrade1 += 1
-            # print(5555555555)
-            # print(desk.pole)
             print(first, second)
             print(winrade, winrade1)
             desk = Board()
-        # print(desk.pole)
 
 
 main()
