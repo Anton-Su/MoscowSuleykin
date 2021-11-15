@@ -62,8 +62,6 @@ class Board:
             Intellect.move(self, self.iicoloda[0])
 
     def ability(self, cart, coloda, result, gamer, ryad=0, coloda2=None):
-        if coloda2 is None:
-            coloda2 = []
         if cart.ability == 'Trap':
             coloda.extend(result[:2])
             res = result[2:]
