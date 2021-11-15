@@ -32,7 +32,7 @@ class Board:
         self.result = cur.execute("""SELECT * FROM CART
             WHERE fraction like 'boys' """).fetchall()
         shuffle(self.result)
-        # to do: раздача 13 карт с обязательной отдачей в 5карт
+        # to do: раздача 13 карт с обязательной отдачей в 5 карт
         podbor(self.coloda, Player, self.result)
         self.iicoloda = []  # колода компьютера
         self.result1 = cur.execute("""SELECT * FROM CART
@@ -67,14 +67,14 @@ class Board:
             result.extend(res)
         elif cart.ability == 'Summon':
             res = [i for i in coloda if i.ability == 'Prisivnic' \
-                   and i.type == cart.type]
+                   and i.teamcod == cart.teamcod]
             rasnisa = len(coloda) - len(res)
             colodaex = [i for i in coloda if i.ability != 'Prisivnic' \
-                           or i.type != cart.type]
+                           or i.teamcod != cart.teamcod]
             res1 = [i for i in result if i.ability == 'Prisivnic' \
-                    and i.type == cart.type]
+                    and i.teamcod == cart.teamcod]
             resultex = [i for i in result if i.ability != 'Prisivnic' \
-                           or i.type != cart.type]
+                           or i.teamcod != cart.teamcod]
             coloda.clear()
             coloda.extend(colodaex)
             coloda.extend(res1)
@@ -97,11 +97,13 @@ def podbor(coloda, Carta, result):
     for i in range(len(result)):
         if i < 8:
             coloda.append(Carta(result[i][0], result[i][1],
-                                result[i][2], result[i][4], result[i][5]))
+                                result[i][2], result[i][4],
+                                result[i][5], result[i][6]))
             print(coloda[i].name)
         else:
             res.append(Carta(result[i][0], result[i][1],
-                             result[i][2], result[i][4], result[i][5]))
+                             result[i][2], result[i][4],
+                             result[i][5], result[i][6]))
             # print(res)
     # to do: замена карт при нажатии на карту
     print()
@@ -110,12 +112,13 @@ def podbor(coloda, Carta, result):
 
 
 class Player(Board):
-    def __init__(self, name, cost, type, hero, ability):
+    def __init__(self, name, cost, type, hero, ability, teamcod):
         self.name = name
         self.hero = hero
         self.cost = cost
         self.type = type
         self.ability = ability
+        self.teamcod = teamcod
 
     def __repr__(self):
         return self.name
@@ -133,8 +136,8 @@ class Player(Board):
         # to do: нажатие на карту, с показателем ряда, куда карта может переместиться
 
     def currentmove(self, ryad, carta, prisivnic):
-        self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.coloda[self.coloda.index(carta)]  # удаление выбранной карты из колоды
+        self.pole[ryad][self.pole[ryad].index('emp')] = carta
         self.ability(carta, self.coloda, self.result, Player)
         if len(self.iicoloda) > 0 and prisivnic == 0:
             self.current = smena(self.current)
@@ -145,12 +148,13 @@ class Player(Board):
 
 
 class Intellect(Board):
-    def __init__(self, name, cost, type, hero, ability):  # to do: ИИ получает свою колоду карт
+    def __init__(self, name, cost, type, hero, ability, teamcod):  # to do: ИИ получает свою колоду карт
         self.name = name
         self.hero = hero
         self.cost = cost
         self.type = type
         self.ability = ability
+        self.teamcod = teamcod
 
     def __repr__(self):
         return self.name
@@ -158,8 +162,8 @@ class Intellect(Board):
     def move(self, carta, prisivnic=0):
         ryad = self.ryadi(carta)
         if self.pole[ryad].count('emp') > 0:
-            self.pole[ryad][self.pole[ryad].index('emp')] = carta
             del self.iicoloda[self.iicoloda.index(carta)]
+            self.pole[ryad][self.pole[ryad].index('emp')] = carta
             self.ability(carta, self.iicoloda, self.result1, Intellect)
             if len(self.coloda) > 0 and prisivnic == 0:
                 self.current = smena(self.current)
