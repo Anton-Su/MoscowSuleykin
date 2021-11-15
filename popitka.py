@@ -128,12 +128,13 @@ class Player(Board):
         # to do: нажатие на карту, с показателем ряда, куда карта может переместиться
 
     def currentmove(self, ryad, carta, prisivnic):
-        Player.ability(self, carta)
+
         print(self.pole[ryad].index('emp'))
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.coloda[self.coloda.index(carta)]   # удаление выбранной карты из колоды
         if len(self.iicoloda) > 0 and prisivnic == 0:
             self.current = smena(self.current)
+        Player.ability(self, carta)
         return True
         # to do: клик пользователя на карточку
         # to do: реализовать функции - способности с перемещением в ряд.
@@ -179,13 +180,14 @@ class Intellect(Board):
         return self.name
 
     def currentmove(self, carta, prisivnic=0):
-        Intellect.ability(self, carta)
+
         ryad = self.ryadi(carta)
         print(self.pole)
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.iicoloda[self.iicoloda.index(carta)]
         if len(self.coloda) > 0 and prisivnic == 0:
             self.current = smena(self.current)
+        Intellect.ability(self, carta)
         return True
         # to do: реализовать функции - способности с перемещением в ряд.
         # Способности карт учитываются
