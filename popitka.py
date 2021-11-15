@@ -128,8 +128,7 @@ class Player(Board):
         # to do: нажатие на карту, с показателем ряда, куда карта может переместиться
 
     def currentmove(self, ryad, carta, prisivnic):
-
-        print(self.pole[ryad].index('emp'))
+        # print(self.pole[ryad].index('emp'))
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.coloda[self.coloda.index(carta)]  # удаление выбранной карты из колоды
         if len(self.iicoloda) > 0 and prisivnic == 0:
@@ -181,9 +180,8 @@ class Intellect(Board):
         return self.name
 
     def currentmove(self, carta, prisivnic=0):
-
         ryad = self.ryadi(carta)
-        print(self.pole)
+        # print(self.pole)
         self.pole[ryad][self.pole[ryad].index('emp')] = carta
         del self.iicoloda[self.iicoloda.index(carta)]
         if len(self.coloda) > 0 and prisivnic == 0:
@@ -218,10 +216,9 @@ def main():
             else:
                 winrade1 += 1
             # print(5555555555)
-            print(desk.pole)
+            # print(desk.pole)
             print(first, second)
             print(winrade, winrade1)
-
             desk = Board()
         # print(desk.pole)
 
