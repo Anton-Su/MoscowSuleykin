@@ -86,7 +86,6 @@ class Player(Board):
         self.ability = ability
 
     def ability(self, cart):
-        # print(cart.name)
         if cart.ability == 'Trap':
             self.coloda.extend(self.result[:2])
             self.result = self.result[2:]
@@ -105,13 +104,13 @@ class Player(Board):
             self.coloda.extend(res)
             for i in range(len(res1) + len(res)):
                 deistvie = Player.move(self, self.coloda[-1], 1)
-                if not deistvie and rasnisa > 0:
-                    rasnisa -= 1
-                    self.coloda.insert(0, self.coloda[-1])
+                if not deistvie:
+                    if rasnisa > 0:
+                        self.coloda.insert(0, self.coloda[-1])
+                    else:
+                        self.result.append(self.coloda[-1])
                     del self.coloda[-1]
-                elif not deistvie and rasnisa == 0:
-                    self.result.append(self.coloda[-1])
-                    del self.coloda[-1]
+                rasnisa -= 1
 
     def __repr__(self):
         return self.name
@@ -168,13 +167,13 @@ class Intellect(Board):
             self.iicoloda.extend(res)
             for i in range(len(res) + len(res1)):
                 deistvie = Intellect.currentmove(self, self.iicoloda[-1], 1)
-                if not deistvie and rasnisa > 0:
-                    rasnisa -= 1
-                    self.iicoloda.insert(0, self.iicoloda[-1])
+                if not deistvie:
+                    if rasnisa > 0:
+                        self.iicoloda.insert(0, self.iicoloda[-1])
+                    else:
+                        self.result1.append(self.iicoloda[-1])
                     del self.iicoloda[-1]
-                elif not deistvie and rasnisa == 0:
-                    self.result1.append(self.iicoloda[-1])
-                    del self.iicoloda[-1]
+                rasnisa -= 1
 
     def __repr__(self):
         return self.name
