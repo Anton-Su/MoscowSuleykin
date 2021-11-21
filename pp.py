@@ -1,58 +1,101 @@
-import sqlite3
+import sys
 import csv
-# opencv, pixellib
-data = [{
-    'lastname': 'Иванов',
-    'firstname': 'Пётр',
-    'class_number': 9,
-    'class_letter': 'А'},
-    {
-    'lastname': 'Кузнецов',
-    'firstname': 'Алексей',
-    'class_number': 9,
-    'class_letter': 'В'}]
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QTableWidgetItem, QTableWidget
 
 
-con = sqlite3.connect('fjords.db')
-cur = con.cursor()
+class Example(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(300, 300, 700, 400)
+        self.setWindowTitle('Распознавание фотографии')
+        self.label_ = QLabel('Cъедобно, вероятно, это фрукт', self)
+        self.label_.move(125, 25)
+        self.label_.resize(400, 100)
+        self.label_.hide()
+        self.btn = QPushButton('Загрузить фотографию', self)
+        self.btn.resize(200, 200)
+        self.btn.move(100, 100)
+        self.btn1 = QPushButton('retry', self)
+        self.btn1.resize(150, 50)
+        self.btn1.move(0, 0)
+        self.btn2 = QPushButton('ok', self)
+        self.btn2.resize(100, 50)
+        self.btn2.move(100, 300)
+        self.btn2.setStyleSheet(f'background: rgb(0, 255, 0)')
+        self.btn3 = QPushButton('not ok', self)
+        self.btn3.resize(100, 50)
+        self.btn3.move(200, 300)
+        self.btn3.setStyleSheet(f'background: rgb(255, 0, 0)')
+        self.btn3.hide()
+        self.btn2.hide()
+        self.btn4 = QPushButton('Редактировать шаблон', self)
+        self.btn4.move(390, 100)
+        self.btn4.resize(200, 50)
+        self.label = QLabel(self)
+        self.label.resize(200, 200)
+        self.label.move(100, 100)
+        self.label.hide()
+        # Подпишем функцию-слот self.count() на сигнал clicked кнопки btn
+        self.btn.clicked.connect(self.count)
+        self.btn1.clicked.connect(self.count1)
+        self.loadTable('excel.csv')
+        self.btn4.clicked.connect(self.loadtable)
+
+    def loadtable(self):
+        self.tableWidget.show() if self.tableWidget.isHidden() else self.tableWidget.hide()
+
+    def loadTable(self, name):
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.move(340, 170)
+        self.tableWidget.resize(350, 130)
+        with open(name) as csvfile:
+            reader = csv.reader(csvfile,
+                                delimiter=';', quotechar='"')
+            title = next(reader)
+            self.tableWidget.setColumnCount(len(title))
+            self.tableWidget.setHorizontalHeaderLabels(title)
+            self.tableWidget.setRowCount(0)
+            for i, row in enumerate(reader):
+                self.tableWidget.setRowCount(
+                    self.tableWidget.rowCount() + 1)
+                for j, elem in enumerate(row):
+                    self.tableWidget.setItem(
+                        i, j, QTableWidgetItem(elem))
+        self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.hide()
+
+    def count(self):
+        fname = QFileDialog.getOpenFileName(
+            self, 'Выбрать картинку', '',
+            'Картинка (*.jpg);;Картинка (*.png);;Все файлы (*)')[0]
+        if fname:
+            self.pixmap = QPixmap(fname)
+            self.label.setPixmap(self.pixmap)
+            self.label.show()
+            self.btn.hide()
+            self.btn2.show()
+            self.btn3.show()
+            self.label_.show()
+
+    def count1(self):
+        self.hide()
+        self.__init__()
+        self.show()
 
 
-def trip(s, country):
-    result = cur.execute(f'''SELECT name,coast_length,depth,water_temperature, state
-        FROM Fjords, States
-        WHERE States.id = country_id and coast_length <= {s}
-    ''').fetchall()
-    result1 = []
-    count = -1
-    for i in result:
-        if i[4] in country:
-            count += 1
-            result1.append([])
-            result1[count].append(i[0])
-            result1[count].append(i[1])
-            result1[count].append(i[2])
-            result1[count].append(i[3])
-    result1.sort(key=lambda x: x[3], reverse=True)
-    with open('ikea.csv', 'w', newline='') as csvfile:
-        writer = csv.DictWriter(
-            csvfile, fieldnames=list(data[0].keys()),
-            delimiter=';', quoting=csv.QUOTE_NONNUMERIC)
-        writer.writeheader()
-        for d in data:
-            print(data)
-            writer.writerow(d)
-    print(result1)
-    # print(result)
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
 
-# count = -1
-# travel = []
-# result.sort(key=lambda x: (x[2], x[1]))
-# for i in result:
-#     count += 1
-#     travel.append([])
-#     travel[count].append(i[0])
-#     travel[count].append(i[1])
-# con.close()
 
-v = ["Norway"]
-trip(60, v)
+def main():
+    app = QApplication(sys.argv)
+    ex = Example()
+    ex.show()
+    sys.excepthook = except_hook
+    sys.exit(app.exec())
+
+main()
